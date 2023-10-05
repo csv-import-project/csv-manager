@@ -51,8 +51,8 @@ class CsvFilesController extends AbstractController
 
 
             $rootDirectory = './assets/uploads/';
-                $fileSystem->mkdir($rootDirectory);
             if (!directoryExists($rootDirectory)) {
+                $fileSystem->mkdir($rootDirectory);
             }
             $targetFile = $rootDirectory . $newFilename;
 //            dd($targetFile);
@@ -93,8 +93,6 @@ class CsvFilesController extends AbstractController
     #[Route('/{id}', name: 'app_csv_files_show', methods: ['GET'])]
     public function show(CsvFiles $csvFile, ChartBuilderInterface $chartBuilder): Response
     {
-
-
         $csv= file_get_contents($csvFile->getUrl());
         $array = array_map("str_getcsv", explode("\n", $csv));
         json_encode($array);
@@ -143,12 +141,34 @@ class CsvFilesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_csv_files_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, CsvFiles $csvFile, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, CsvFiles $csvFile, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(CsvFilesType::class, $csvFile);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $fileSystem = new Filesystem();
+
+            $submittedFile = $form->get('url')->getData();
+            $originalFilename = pathinfo($submittedFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid('', false) . '.csv';
+            $rootDirectory = './assets/uploads/';
+            if (!directoryExists($rootDirectory)) {
+            $fileSystem->mkdir($rootDirectory);
+            }
+            $targetFile = $rootDirectory . $newFilename;
+//            dd($targetFile);
+
+            //now we can copy the new file in the right folder
+            $fileSystem->copy($submittedFile, $targetFile);
+
+
+
+            //setting new file url
+            $csvFile->setUrl($targetFile);
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_csv_files_index', [], Response::HTTP_SEE_OTHER);
