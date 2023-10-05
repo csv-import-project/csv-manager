@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CsvFiles{% endblock %}
+
+{% block body %}
+    <h1>CsvFiles</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ csv_file.id }}</td>
+            </tr>
+            <tr>
+                <th>Url</th>
+                <td>{{ csv_file.url }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_csv_files_index') }}">back to list</a>
+
+    <a href="{{ path('app_csv_files_edit', {'id': csv_file.id}) }}">edit</a>
+
+    <div class="container" id="wrapper">
+        {{ render_chart(chart) }}
+    </div>
+
+    {{ include('csv_files/_delete_form.html.twig') }}
+{% endblock %}

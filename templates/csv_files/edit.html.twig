@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit CsvFiles{% endblock %}
+
+{% block body %}
+    <h1>Edit CsvFiles</h1>
+
+    {{ include('csv_files/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_csv_files_index') }}">back to list</a>
+
+    {{ include('csv_files/_delete_form.html.twig') }}
+{% endblock %}
